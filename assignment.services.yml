@@ -1,0 +1,4 @@
+services:
+  assignment.get_timezone_service:
+    class: Drupal\assignment\Services\GetTime
+    arguments: ['@entity.query', '@entity_type.manager']

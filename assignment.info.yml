@@ -1,0 +1,5 @@
+name: Timezone assignment  
+type: module  
+description: Display a time based on timezone  
+core: 8.x  
+package: Custom  

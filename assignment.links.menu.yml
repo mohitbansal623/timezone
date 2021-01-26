@@ -1,0 +1,6 @@
+assignment.timezone:  
+  title: 'Set Timezone Settings'  
+  route_name: assignment.timezone  
+  description: 'Timezone settings'  
+  parent: system.admin_config_system  
+  weight: 99
