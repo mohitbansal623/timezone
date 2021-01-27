@@ -1,6 +1,8 @@
 <?php
 namespace Drupal\assignment\Plugin\Block;
 use Drupal\Core\block\BlockBase;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheBackendInterface;
 
 
 /**
@@ -27,18 +29,21 @@ class GetTimeBlock extends BlockBase{
 
     $time = $call_time_service->get_timezone($timezone);
 
+    $data = ['city' => $city, 'country' => $country, 'time' => $time];
+    $cid = 'timezone_' . $timezone;
+    $tags = ['timezone:' . $timezone];
+
+    // Getting custom cache tag if exists.
+    if ($item = \Drupal::cache()->get($cid)) {
+      $data = $item->data;
+    }
+
+    // Setting custom cache.
+    \Drupal::cache()->set($cid, $data, CacheBackendInterface::CACHE_PERMANENT, $tags);
+
     return array(
         '#theme' => 'time_block',
-        '#city' => $city,
-        '#country' => $country,
-        '#time' => $time,
+        '#data' => $data,
     );
-  }
-
-  /**
-   * {@inheritdoc} Preventing block to be cached.
-   */
-  public function getCacheMaxAge() {
-    return 0;
   }
 }

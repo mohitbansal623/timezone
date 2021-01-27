@@ -6,6 +6,7 @@
 namespace Drupal\assignment\Form;  
 use Drupal\Core\Form\ConfigFormBase;  
 use Drupal\Core\Form\FormStateInterface;  
+use Drupal\Core\Cache\Cache;
 
 class TimezoneForm extends ConfigFormBase { 
 
@@ -80,7 +81,13 @@ class TimezoneForm extends ConfigFormBase {
       ->set('country', $form_state->getValue('country'))
       ->set('city', $form_state->getValue('city'))
       ->set('timezone', $form_state->getValue('timezone'))  
-      ->save();  
+      ->save();
+
+    $timezone = $form_state->getValue('timezone');
+
+    // Invalidating Cache
+    $tags = ['timezone:' . $timezone];
+    Cache::invalidateTags($tags);  
   }       
 
 }  
