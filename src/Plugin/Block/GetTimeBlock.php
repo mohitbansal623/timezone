@@ -3,7 +3,9 @@ namespace Drupal\assignment\Plugin\Block;
 use Drupal\Core\block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
-
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\assignment\Services\GetTime;
 
 /**
  * Provides a 'Time' block.
@@ -14,7 +16,40 @@ use Drupal\Core\Cache\CacheBackendInterface;
  * )
  */
 
-class GetTimeBlock extends BlockBase{
+class GetTimeBlock extends BlockBase  implements ContainerFactoryPluginInterface {
+
+  /**
+  * @var $time \Drupal\assignment\Services\GetTime
+  */
+  protected $time;
+
+  /**
+  * @param array $configuration
+  * @param string $plugin_id
+  * @param mixed $plugin_definition
+  * @param \Drupal\assignment\Services\GetTime $time
+  */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, GetTime $time) {
+  parent::__construct($configuration, $plugin_id, $plugin_definition);
+  $this->time = $time;
+  }
+
+  /**
+  * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+  * @param array $configuration
+  * @param string $plugin_id
+  * @param mixed $plugin_definition
+  *
+  * @return static
+  */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  return new static(
+    $configuration,
+    $plugin_id,
+    $plugin_definition,
+    $container->get('assignment.get_timezone_service'));
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -24,10 +59,7 @@ class GetTimeBlock extends BlockBase{
     $country = \Drupal::config('assignment.adminsettings')->get('country');
     $timezone = \Drupal::config('assignment.adminsettings')->get('timezone');
 
-    // Fetching time based on the timezone using service.
-    $call_time_service = \Drupal::service('assignment.get_timezone_service'); 
-
-    $time = $call_time_service->get_timezone($timezone);
+    $time = $this->time->get_timezone($timezone);
 
     $data = ['city' => $city, 'country' => $country, 'time' => $time];
     $cid = 'timezone_' . $timezone;
